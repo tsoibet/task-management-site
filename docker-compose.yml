@@ -29,6 +29,8 @@ services:
          - "3306:3306"
      environment:
          - MYSQL_ROOT_PASSWORD=secret
+     volumes:
+         - $PWD/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
  adminer:
      image: adminer
      restart: always
