@@ -1,10 +1,5 @@
-<?php
-$mysql_host = getenv("MYSQL_HOST");
-$mysql_user = getenv("MYSQL_USER");
-$mysql_pass = getenv("MYSQL_PASS");
-$mysql_db = getenv("MYSQL_DB");
-$mysql_port = getenv("MYSQL_PORT");
-?>
+<?php include_once 'header.php'; ?>
+
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
   $conn = new mysqli($mysql_host, $mysql_user, $mysql_pass, $mysql_db);
@@ -16,11 +11,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
                                 VALUES (?, ?, ?, ?, TRUE, ?)");
     $stmt->bind_param("sssss", $task, $description, $status, $priority, $deadline);
 
-    $task = $_POST["task"];
-    $description = $_POST["description"];
-    $status = $_POST["status"];
-    $priority = $_POST["priority"];
-    $deadline = $_POST["deadline"];
+    $task = input_safe($_POST["task"]);
+    $description = input_safe($_POST["description"]);
+    $status = input_safe($_POST["status"]);
+    $priority = input_safe($_POST["priority"]);
+    $deadline = input_safe($_POST["deadline"]);
     if (!$stmt->execute()) {
       echo "Error: " . $stmt->error;
     }
@@ -29,7 +24,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
     $stmt = $conn->prepare("DELETE FROM TMSITE.TASK WHERE id=?");
     $stmt->bind_param("i", $id);
 
-    $id = $_POST["id"];
+    $id = input_safe($_POST["id"]);
+    if (!$stmt->execute()) {
+      echo "Error: " . $stmt->error;
+    }
+    $stmt->close();
+  } else if ($_POST["action"] == "update") {
+    $stmt = $conn->prepare("UPDATE TMSITE.TASK SET title=?, detail=?, `status`=?, `priority`=?, deadlineness=TRUE, deadline=?
+                            WHERE id= ?");
+    $stmt->bind_param("sssssi", $task, $description, $status, $priority, $deadline, $id);
+
+    $task = input_safe($_POST["task"]);
+    $description = input_safe($_POST["description"]);
+    $status = input_safe($_POST["status"]);
+    $priority = input_safe($_POST["priority"]);
+    $deadline = input_safe($_POST["deadline"]);
+    $id = input_safe($_POST["id"]);
     if (!$stmt->execute()) {
       echo "Error: " . $stmt->error;
     }
@@ -73,11 +83,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
               <option value="In progress">In progress</option>
               <option value="Done">Done</option>
             </select></td>
-          <td><select name="priority">
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select></td>
+          <td><input type="radio" name="priority" value="1">1
+            <input type="radio" name="priority" value="2">2
+            <input type="radio" name="priority" value="3">3 </td>
           <td><input type="date" name="deadline"></td>
           <td><input type="submit" value="Add"></td>
           <input type="hidden" name="action" value="insert">
@@ -108,8 +116,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
           "</td><td>" . $row["detail"] .
           "</td><td>" . $row["status"] .
           "</td><td>" . $row["priority"] .
-          "</td><td>" . $row["deadline"] .
-          "</td><td><button>Modify</button>" .
+          "</td><td>" . substr($row["deadline"], 0, -9) .
+          "</td><td><form method='get' action='modify.php'>
+                    <input type='submit' value='Modify'>
+                    <input type='hidden' name='action' value='modify'> 
+                    <input type='hidden' name='id' value='" . $row["id"] . "'> </form>" .
           "</td><td><form method='post' action='" . htmlspecialchars($_SERVER["PHP_SELF"]) . "'>
                     <input type='submit' value='Delete'>
                     <input type='hidden' name='action' value='delete'> 
