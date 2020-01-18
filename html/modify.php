@@ -1,6 +1,37 @@
-<?php include_once 'header.php'; ?>
-
 <?php
+include_once 'header.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
+  if ($_POST["action"] == "update") {
+    $id = input_safe($_POST["id"]);
+    $task = input_safe($_POST["task"]);
+    $description = input_safe($_POST["description"]);
+    $status = input_safe($_POST["status"]);
+    $priority = input_safe($_POST["priority"]);
+    $deadline = input_safe($_POST["deadline"]);
+    if ((empty($_POST["task"]) && $_POST["task"] != "0") || empty($_POST["status"]) || empty($_POST["priority"]) || empty($_POST["deadline"])) {
+      $Err_msg = " * required ";
+    } else if (strlen($_POST["task"]) > 50) {
+      $Too_long = " * too long ";
+    } else {
+      $conn = new mysqli($mysql_host, $mysql_user, $mysql_pass, $mysql_db);
+      if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+      }
+      $stmt = $conn->prepare("UPDATE TMSITE.TASK SET title=?, detail=?, `status`=?, `priority`=?, deadlineness=TRUE, deadline=?
+                                  WHERE id= ?");
+      $stmt->bind_param("sssssi", $task, $description, $status, $priority, $deadline, $id);
+      if (!$stmt->execute()) {
+        echo "Error: " . $stmt->error;
+      }
+      $stmt->close();
+      $conn->close();
+      header('Location: index.php');
+      exit;
+    }
+  }
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "GET" && !empty($_GET["action"])) {
   $conn = new mysqli($mysql_host, $mysql_user, $mysql_pass, $mysql_db);
   if ($conn->connect_error) {
@@ -16,6 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && !empty($_GET["action"])) {
     $stmt->bind_result($id, $task, $description, $status, $priority, $deadlineness, $deadline, $createdat);
     $stmt->fetch();
     $stmt->close();
+    $deadline = substr($deadline, 0, -9);
   }
   $conn->close();
 }
@@ -36,18 +68,17 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && !empty($_GET["action"])) {
 <body>
   <div class="container">
     <h1>Task Management Site</h1>
-
     <table>
       <tr>
-        <th>Task</th>
+        <th>Task<span class="error"><?php echo $Err_msg . $Too_long; ?></span></th>
         <th>Description</th>
         <th>Status</th>
-        <th>Priority</th>
-        <th>Deadline</th>
+        <th>Priority<span class="error"><?php echo $Err_msg; ?></span></th>
+        <th>Deadline<span class="error"><?php echo $Err_msg; ?></span></th>
         <th></th>
       </tr>
       <tr>
-        <form method="post" action="index.php">
+        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
           <td><input type="text" name="task" value="<?php echo $task; ?>"></td>
           <td><input type="text" name="description" value="<?php echo $description; ?>"></td>
           <td><select name="status">
@@ -58,7 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && !empty($_GET["action"])) {
           <td><input type="radio" name="priority" value="1" <?php if ($priority == "1") echo "checked"; ?>>1
             <input type="radio" name="priority" value="2" <?php if ($priority == "2") echo "checked"; ?>>2
             <input type="radio" name="priority" value="3" <?php if ($priority == "3") echo "checked"; ?>>3 </td>
-          <td><input type="date" name="deadline" value="<?php echo substr($deadline, 0, -9); ?>"></td>
+          <td><input type="date" name="deadline" value="<?php echo $deadline ?>"></td>
           <td><input type="submit" value="Send"></td>
           <input type="hidden" name="action" value="update">
           <input type="hidden" name="id" value="<?php echo $id; ?>">
@@ -95,11 +126,11 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && !empty($_GET["action"])) {
           "</td><td>" . $status .
           "</td><td>" . $priority .
           "</td><td>" . substr($deadline, 0, -9) .
-          "</td><td><form method='get' action='modify.php'>
+          "</td><td><form method='get' action='" . htmlspecialchars($_SERVER["PHP_SELF"]) . "'>
                 <input type='submit' value='Modify'>
                 <input type='hidden' name='action' value='modify'> 
                 <input type='hidden' name='id' value='" . $id . "'> </form>" .
-          "</td><td><form method='post' action='" . htmlspecialchars($_SERVER["PHP_SELF"]) . "'>
+          "</td><td><form method='post' action='index.php'>
                 <input type='submit' value='Delete'>
                 <input type='hidden' name='action' value='delete'> 
                 <input type='hidden' name='id' value='" . $id . "'> </form>" .

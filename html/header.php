@@ -5,6 +5,9 @@ $mysql_pass = getenv("MYSQL_PASS");
 $mysql_db = getenv("MYSQL_DB");
 $mysql_port = getenv("MYSQL_PORT");
 
+$Err_msg = "";
+$Too_long = "";
+
 function input_safe($data)
 {
   $data = trim($data);

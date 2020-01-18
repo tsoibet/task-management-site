@@ -7,38 +7,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
     die("Connection failed: " . $conn->connect_error);
   }
   if ($_POST["action"] == "insert") {
-    $stmt = $conn->prepare("INSERT INTO TMSITE.TASK (title, detail, `status`, `priority`, deadlineness, deadline)
-                                VALUES (?, ?, ?, ?, TRUE, ?)");
-    $stmt->bind_param("sssss", $task, $description, $status, $priority, $deadline);
-
     $task = input_safe($_POST["task"]);
     $description = input_safe($_POST["description"]);
     $status = input_safe($_POST["status"]);
     $priority = input_safe($_POST["priority"]);
     $deadline = input_safe($_POST["deadline"]);
-    if (!$stmt->execute()) {
-      echo "Error: " . $stmt->error;
+    if ((empty($_POST["task"]) && $_POST["task"] != "0") || empty($_POST["status"]) || empty($_POST["priority"]) || empty($_POST["deadline"])) {
+      $Err_msg = " * required ";
+    } else if (strlen($_POST["task"]) > 50) {
+      $Too_long = " * too long ";
+    } else {
+      $stmt = $conn->prepare("INSERT INTO TMSITE.TASK (title, detail, `status`, `priority`, deadlineness, deadline)
+      VALUES (?, ?, ?, ?, TRUE, ?)");
+      $stmt->bind_param("sssss", $task, $description, $status, $priority, $deadline);
+      if (!$stmt->execute()) {
+        echo "Error: " . $stmt->error;
+      }
+      $stmt->close();
+      $task = $description = $status = $priority = $deadline = "";
     }
-    $stmt->close();
   } else if ($_POST["action"] == "delete") {
     $stmt = $conn->prepare("DELETE FROM TMSITE.TASK WHERE id=?");
     $stmt->bind_param("i", $id);
 
-    $id = input_safe($_POST["id"]);
-    if (!$stmt->execute()) {
-      echo "Error: " . $stmt->error;
-    }
-    $stmt->close();
-  } else if ($_POST["action"] == "update") {
-    $stmt = $conn->prepare("UPDATE TMSITE.TASK SET title=?, detail=?, `status`=?, `priority`=?, deadlineness=TRUE, deadline=?
-                            WHERE id= ?");
-    $stmt->bind_param("sssssi", $task, $description, $status, $priority, $deadline, $id);
-
-    $task = input_safe($_POST["task"]);
-    $description = input_safe($_POST["description"]);
-    $status = input_safe($_POST["status"]);
-    $priority = input_safe($_POST["priority"]);
-    $deadline = input_safe($_POST["deadline"]);
     $id = input_safe($_POST["id"]);
     if (!$stmt->execute()) {
       echo "Error: " . $stmt->error;
@@ -67,26 +58,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
 
     <table>
       <tr>
-        <th>Task</th>
+        <th>Task<span class="error"><?php echo $Err_msg . $Too_long; ?></span></th>
         <th>Description</th>
         <th>Status</th>
-        <th>Priority</th>
-        <th>Deadline</th>
+        <th>Priority<span class="error"><?php echo $Err_msg; ?></span></th>
+        <th>Deadline<span class="error"><?php echo $Err_msg; ?></span></th>
         <th></th>
       </tr>
       <tr>
         <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-          <td><input type="text" name="task"></td>
-          <td><input type="text" name="description"></td>
+          <td><input type="text" name="task" value="<?php echo $task; ?>"></td>
+          <td><input type="text" name="description" value="<?php echo $description; ?>"></td>
           <td><select name="status">
-              <option value="To do">To do</option>
-              <option value="In progress">In progress</option>
-              <option value="Done">Done</option>
+              <option value="To do" <?php if ($status == "To do") echo "selected"; ?>>To do</option>
+              <option value="In progress" <?php if ($status == "In progress") echo "selected"; ?>>In progress</option>
+              <option value="Done" <?php if ($status == "Done") echo "selected"; ?>>Done</option>
             </select></td>
-          <td><input type="radio" name="priority" value="1">1
-            <input type="radio" name="priority" value="2">2
-            <input type="radio" name="priority" value="3">3 </td>
-          <td><input type="date" name="deadline"></td>
+          <td><input type="radio" name="priority" value="1" <?php if ($priority == "1") echo "checked"; ?>>1
+            <input type="radio" name="priority" value="2" <?php if ($priority == "2") echo "checked"; ?>>2
+            <input type="radio" name="priority" value="3" <?php if ($priority == "3") echo "checked"; ?>>3 </td>
+          <td><input type="date" name="deadline" value="<?php echo $deadline; ?>"></td>
           <td><input type="submit" value="Add"></td>
           <input type="hidden" name="action" value="insert">
         </form>
