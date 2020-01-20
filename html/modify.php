@@ -9,11 +9,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
     $status = input_safe($_POST["status"]);
     $priority = input_safe($_POST["priority"]);
     $deadline = input_safe($_POST["deadline"]);
-    if ((empty($_POST["task"]) && $_POST["task"] != "0") || empty($_POST["status"]) || empty($_POST["priority"]) || empty($_POST["deadline"])) {
-      $Err_msg = " * required ";
-    } else if (strlen($_POST["task"]) > 50) {
-      $Too_long = " * too long ";
-    } else {
+    if ($_POST["task"] == "") {
+      $Err_msg_task = " * required ";
+    }
+    if ($_POST["status"] == "") {
+      $Err_msg_status = " * required ";
+    }
+    if ($_POST["priority"] == "") {
+      $Err_msg_priority = " * required ";
+    }
+    if ($_POST["deadline"] == "") {
+      $Err_msg_deadline = " * required ";
+    }
+    if (strlen($_POST["task"]) > 50) {
+      $Err_msg_task = " * too long ";
+    }
+    if ($Err_msg_task == "" && $Err_msg_status == "" && $Err_msg_priority == "" && $Err_msg_deadline == "") {
       $conn = new mysqli($mysql_host, $mysql_user, $mysql_pass, $mysql_db);
       if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
@@ -70,11 +81,11 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && !empty($_GET["action"])) {
     <h1>Task Management Site</h1>
     <table>
       <tr>
-        <th>Task<span class="error"><?php echo $Err_msg . $Too_long; ?></span></th>
+        <th>Task<span class="error"><?php echo $Err_msg_task; ?></span></th>
         <th>Description</th>
-        <th>Status</th>
-        <th>Priority<span class="error"><?php echo $Err_msg; ?></span></th>
-        <th>Deadline<span class="error"><?php echo $Err_msg; ?></span></th>
+        <th>Status<span class="error"><?php echo $Err_msg_status; ?></span></th>
+        <th>Priority<span class="error"><?php echo $Err_msg_priority; ?></span></th>
+        <th>Deadline<span class="error"><?php echo $Err_msg_deadline; ?></span></th>
         <th></th>
       </tr>
       <tr>

@@ -5,8 +5,10 @@ $mysql_pass = getenv("MYSQL_PASS");
 $mysql_db = getenv("MYSQL_DB");
 $mysql_port = getenv("MYSQL_PORT");
 
-$Err_msg = "";
-$Too_long = "";
+$Err_msg_task = "";
+$Err_msg_status = "";
+$Err_msg_priority = "";
+$Err_msg_deadline = "";
 
 function input_safe($data)
 {
