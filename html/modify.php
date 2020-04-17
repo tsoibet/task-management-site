@@ -9,19 +9,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
     $status = input_safe($_POST["status"]);
     $priority = input_safe($_POST["priority"]);
     $deadline = input_safe($_POST["deadline"]);
-    if ($_POST["task"] == "") {
+    if ($task == "") {
       $Err_msg_task = " * required ";
     }
-    if ($_POST["status"] == "") {
+    if ($status == "") {
       $Err_msg_status = " * required ";
     }
-    if ($_POST["priority"] == "") {
+    if ($priority == "") {
       $Err_msg_priority = " * required ";
     }
-    if ($_POST["deadline"] == "") {
+    if ($deadline == "") {
       $Err_msg_deadline = " * required ";
     }
-    if (strlen($_POST["task"]) > 50) {
+    if (strlen($task) > 50) {
       $Err_msg_task = " * too long ";
     }
     if ($Err_msg_task == "" && $Err_msg_status == "" && $Err_msg_priority == "" && $Err_msg_deadline == "") {

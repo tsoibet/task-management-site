@@ -12,19 +12,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
     $status = input_safe($_POST["status"]);
     $priority = input_safe($_POST["priority"]);
     $deadline = input_safe($_POST["deadline"]);
-    if ($_POST["task"] == "") {
+    if ($task == "") {
       $Err_msg_task = " * required ";
     }
-    if ($_POST["status"] == "") {
+    if ($status == "") {
       $Err_msg_status = " * required ";
     }
-    if ($_POST["priority"] == "") {
+    if ($priority == "") {
       $Err_msg_priority = " * required ";
     }
-    if ($_POST["deadline"] == "") {
+    if ($deadline == "") {
       $Err_msg_deadline = " * required ";
     }
-    if (strlen($_POST["task"]) > 50) {
+    if (strlen($task) > 50) {
       $Err_msg_task = " * too long ";
     }
     if ($Err_msg_task == "" && $Err_msg_status == "" && $Err_msg_priority == "" && $Err_msg_deadline == "") {
@@ -40,7 +40,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
   } else if ($_POST["action"] == "delete") {
     $stmt = $conn->prepare("DELETE FROM TMSITE.TASK WHERE id=?");
     $stmt->bind_param("i", $id);
-
     $id = input_safe($_POST["id"]);
     if (!$stmt->execute()) {
       echo "Error: " . $stmt->error;
@@ -64,46 +63,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
 </head>
 
 <body>
-  <div class="container">
-    <h1>Task Management Site</h1>
+  <div class="container-fluid">
+    <div class="row pt-3 pb-1 pl-3 pr-3">
+      <h1>Task Management Site</h1>
+    </div>
+    <div class="row pt-1 pb-1 pl-3 pr-3">
+      <div class="alert alert-info" role="alert">
+        <div class="table-responsive">
+          <table>
+            <tr>
+              <th>Task<span class="error"><?php echo $Err_msg_task; ?></span></th>
+              <th>Description</th>
+              <th>Status<span class="error"><?php echo $Err_msg_status; ?></span></th>
+              <th>Priority<span class="error"><?php echo $Err_msg_priority; ?></span></th>
+              <th>Deadline<span class="error"><?php echo $Err_msg_deadline; ?></span></th>
+              <th></th>
+            </tr>
+            <tr>
+              <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                <td><input type="text" class="form-control form-control-sm" name="task" value="<?php echo $task; ?>"></td>
+                <td><input type="text" class="form-control form-control-sm" name="description" value="<?php echo $description; ?>"></td>
+                <td><select name="status" class="form-control form-control-sm">
+                    <option value="To do" <?php if ($status == "To do") echo "selected"; ?>>To do</option>
+                    <option value="In progress" <?php if ($status == "In progress") echo "selected"; ?>>In progress</option>
+                    <option value="Done" <?php if ($status == "Done") echo "selected"; ?>>Done</option>
+                  </select></td>
+                <td>
+                  <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" name="priority" value="1" <?php if ($priority == "1") echo "checked"; ?>>1
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" name="priority" value="2" <?php if ($priority == "2") echo "checked"; ?>>2
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" name="priority" value="3" <?php if ($priority == "3") echo "checked"; ?>>3
+                  </div>
+                </td>
+                <td><input type="date" class="form-control form-control-sm" name="deadline" value="<?php echo $deadline; ?>"></td>
+                <td><input type="submit" class="btn btn-info btn-sm" value="Add"></td>
+                <input type="hidden" name="action" value="insert">
+              </form>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
 
-    <table>
-      <tr>
-        <th>Task<span class="error"><?php echo $Err_msg_task; ?></span></th>
-        <th>Description</th>
-        <th>Status<span class="error"><?php echo $Err_msg_status; ?></span></th>
-        <th>Priority<span class="error"><?php echo $Err_msg_priority; ?></span></th>
-        <th>Deadline<span class="error"><?php echo $Err_msg_deadline; ?></span></th>
-        <th></th>
-      </tr>
-      <tr>
-        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-          <td><input type="text" name="task" value="<?php echo $task; ?>"></td>
-          <td><input type="text" name="description" value="<?php echo $description; ?>"></td>
-          <td><select name="status">
-              <option value="To do" <?php if ($status == "To do") echo "selected"; ?>>To do</option>
-              <option value="In progress" <?php if ($status == "In progress") echo "selected"; ?>>In progress</option>
-              <option value="Done" <?php if ($status == "Done") echo "selected"; ?>>Done</option>
-            </select></td>
-          <td><input type="radio" name="priority" value="1" <?php if ($priority == "1") echo "checked"; ?>>1
-            <input type="radio" name="priority" value="2" <?php if ($priority == "2") echo "checked"; ?>>2
-            <input type="radio" name="priority" value="3" <?php if ($priority == "3") echo "checked"; ?>>3 </td>
-          <td><input type="date" name="deadline" value="<?php echo $deadline; ?>"></td>
-          <td><input type="submit" value="Add"></td>
-          <input type="hidden" name="action" value="insert">
-        </form>
-      </tr>
-    </table>
-
-    <?php
-    $conn = new mysqli($mysql_host, $mysql_user, $mysql_pass, $mysql_db);
-    if ($conn->connect_error) {
-      die("Connection failed: " . $conn->connect_error);
-    }
-    $sql = "SELECT * FROM TMSITE.TASK";
-    $result = $conn->query($sql);
-    if ($result->num_rows > 0) {
-      echo "<table>
+    <div class="row pt-1 pb-1 pl-3 pr-3">
+      <?php
+      $conn = new mysqli($mysql_host, $mysql_user, $mysql_pass, $mysql_db);
+      if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+      }
+      $sql = "SELECT * FROM TMSITE.TASK";
+      $result = $conn->query($sql);
+      if ($result->num_rows > 0) {
+        echo "<table class='table table-hover table-sm'>
+          <thead class='thead-dark'>
           <tr>
           <th>Task</th>
           <th>Description</th>
@@ -112,30 +128,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
           <th>Deadline</th>
           <th> </th>
           <th> </th>
-          </tr>";
-      while ($row = $result->fetch_assoc()) {
-        echo "<tr><td>" . $row["title"] .
-          "</td><td>" . $row["detail"] .
-          "</td><td>" . $row["status"] .
-          "</td><td>" . $row["priority"] .
-          "</td><td>" . substr($row["deadline"], 0, -9) .
-          "</td><td><form method='get' action='modify.php'>
-                    <input type='submit' value='Modify'>
+          </tr>
+          </thead>";
+        while ($row = $result->fetch_assoc()) {
+          echo "<tr><td>" . $row["title"] .
+            "</td><td>" . $row["detail"] .
+            "</td><td>" . $row["status"] .
+            "</td><td>" . $row["priority"] .
+            "</td><td>" . substr($row["deadline"], 0, -9) .
+            "</td><td><form method='get' action='modify.php'>
+                    <input type='submit' class='btn btn-light btn-sm' value='Modify'>
                     <input type='hidden' name='action' value='modify'> 
                     <input type='hidden' name='id' value='" . $row["id"] . "'> </form>" .
-          "</td><td><form method='post' action='" . htmlspecialchars($_SERVER["PHP_SELF"]) . "'>
-                    <input type='submit' value='Delete'>
+            "</td><td><form method='post' action='" . htmlspecialchars($_SERVER["PHP_SELF"]) . "'>
+                    <input type='submit' class='btn btn-light btn-sm' value='Delete'>
                     <input type='hidden' name='action' value='delete'> 
                     <input type='hidden' name='id' value='" . $row["id"] . "'> </form>" .
-          "</td></tr>";
+            "</td></tr>";
+        }
+        echo "</table>";
+      } else {
+        echo "No tasks at the moment.";
       }
-      echo "</table>";
-    } else {
-      echo "No tasks at the moment.";
-    }
-    $conn->close();
-    ?>
-
+      $conn->close();
+      ?>
+    </div>
 
 
   </div>
