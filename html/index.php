@@ -13,19 +13,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
     $priority = input_safe($_POST["priority"]);
     $deadline = input_safe($_POST["deadline"]);
     if ($task == "") {
-      $Err_msg_task = " * required ";
+      $Err_msg_task = " required ";
     }
     if ($status == "") {
-      $Err_msg_status = " * required ";
+      $Err_msg_status = " required ";
     }
     if ($priority == "") {
-      $Err_msg_priority = " * required ";
+      $Err_msg_priority = " required ";
     }
     if ($deadline == "") {
-      $Err_msg_deadline = " * required ";
+      $Err_msg_deadline = " required ";
     }
     if (strlen($task) > 50) {
-      $Err_msg_task = " * too long ";
+      $Err_msg_task = " too long ";
     }
     if ($Err_msg_task == "" && $Err_msg_status == "" && $Err_msg_priority == "" && $Err_msg_deadline == "") {
       $stmt = $conn->prepare("INSERT INTO TMSITE.TASK (title, detail, `status`, `priority`, deadlineness, deadline)
@@ -64,52 +64,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
 
 <body>
   <div class="container-fluid">
-    <div class="row pt-3 pb-1 pl-3 pr-3">
+    <div class="row pt-3 pb-1 px-3">
       <h1>Task Management Site</h1>
     </div>
-    <div class="row pt-1 pb-1 pl-3 pr-3">
-      <div class="alert alert-info" role="alert">
-        <div class="table-responsive">
-          <table>
-            <tr>
-              <th>Task<span class="error"><?php echo $Err_msg_task; ?></span></th>
-              <th>Description</th>
-              <th>Status<span class="error"><?php echo $Err_msg_status; ?></span></th>
-              <th>Priority<span class="error"><?php echo $Err_msg_priority; ?></span></th>
-              <th>Deadline<span class="error"><?php echo $Err_msg_deadline; ?></span></th>
-              <th></th>
-            </tr>
-            <tr>
-              <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-                <td><input type="text" class="form-control form-control-sm" name="task" value="<?php echo $task; ?>"></td>
-                <td><input type="text" class="form-control form-control-sm" name="description" value="<?php echo $description; ?>"></td>
-                <td><select name="status" class="form-control form-control-sm">
-                    <option value="To do" <?php if ($status == "To do") echo "selected"; ?>>To do</option>
-                    <option value="In progress" <?php if ($status == "In progress") echo "selected"; ?>>In progress</option>
-                    <option value="Done" <?php if ($status == "Done") echo "selected"; ?>>Done</option>
-                  </select></td>
-                <td>
-                  <div class="form-check form-check-inline">
-                    <input type="radio" class="form-check-input" name="priority" value="1" <?php if ($priority == "1") echo "checked"; ?>>1
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input type="radio" class="form-check-input" name="priority" value="2" <?php if ($priority == "2") echo "checked"; ?>>2
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input type="radio" class="form-check-input" name="priority" value="3" <?php if ($priority == "3") echo "checked"; ?>>3
-                  </div>
-                </td>
-                <td><input type="date" class="form-control form-control-sm" name="deadline" value="<?php echo $deadline; ?>"></td>
-                <td><input type="submit" class="btn btn-info btn-sm" value="Add"></td>
-                <input type="hidden" name="action" value="insert">
-              </form>
-            </tr>
-          </table>
-        </div>
+    <div class="row py-1 px-3">
+      <div class="alert alert-info shadow-sm rounded" role="alert">
+        <form class="mb-n1" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+          <div class="row">
+            <div class="form-group col-sm-2">
+              <label class="col-form-label pl-1">Task<span class="error badge badge-danger ml-1"><?php echo $Err_msg_task; ?></span></label>
+              <input type="text" class="form-control form-control-sm" name="task" value="<?php echo $task; ?>">
+            </div>
+            <div class="form-group col-sm-3">
+              <label class="col-form-label pl-1">Description</label>
+              <input type="text" class="form-control form-control-sm" name="description" value="<?php echo $description; ?>">
+            </div>
+            <div class="form-group col-sm-2">
+              <label class="col-form-label pl-1">Status<span class="error badge badge-danger ml-1"><?php echo $Err_msg_status; ?></span></label>
+              <select name="status" class="form-control form-control-sm">
+                <option value="To do" <?php if ($status == "To do") echo "selected"; ?>>To do</option>
+                <option value="In progress" <?php if ($status == "In progress") echo "selected"; ?>>In progress</option>
+                <option value="Done" <?php if ($status == "Done") echo "selected"; ?>>Done</option>
+              </select>
+            </div>
+            <div class="form-group col-sm-2">
+              <div><label class="col-form-label pl-1">Priority<span class="error badge badge-danger ml-1"><?php echo $Err_msg_priority; ?></span></label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input type="radio" class="form-check-input position-static" name="priority" value="1" <?php if ($priority == "1") echo "checked"; ?>>1
+              </div>
+              <div class="form-check form-check-inline">
+                <input type="radio" class="form-check-input position-static" name="priority" value="2" <?php if ($priority == "2") echo "checked"; ?>>2
+              </div>
+              <div class="form-check form-check-inline">
+                <input type="radio" class="form-check-input position-static" name="priority" value="3" <?php if ($priority == "3") echo "checked"; ?>>3
+              </div>
+            </div>
+            <div class="form-group col-sm-2">
+              <label class="col-form-label pl-1">Deadline<span class="error badge badge-danger ml-1"><?php echo $Err_msg_deadline; ?></span></label>
+              <input type="date" class="form-control form-control-sm" name="deadline" value="<?php echo $deadline; ?>">
+            </div>
+            <div class="form-group col-sm-1 pt-4">
+              <input type="submit" class="btn btn-info btn-sm" value="Add">
+            </div>
+            <input type="hidden" name="action" value="insert">
+          </div>
+        </form>
+
       </div>
     </div>
 
-    <div class="row pt-1 pb-1 pl-3 pr-3">
+    <div class="row py-1 px-3">
       <?php
       $conn = new mysqli($mysql_host, $mysql_user, $mysql_pass, $mysql_db);
       if ($conn->connect_error) {
@@ -118,7 +123,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
       $sql = "SELECT * FROM TMSITE.TASK";
       $result = $conn->query($sql);
       if ($result->num_rows > 0) {
-        echo "<table class='table table-hover table-sm'>
+        echo "<table class='table table-hover table'>
           <thead class='thead-dark'>
           <tr>
           <th>Task</th>
