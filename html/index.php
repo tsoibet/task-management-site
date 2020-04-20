@@ -59,16 +59,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <!-- Google icon -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <title>Task Management Site</title>
 </head>
 
 <body>
   <div class="container-fluid">
     <div class="row pt-3 pb-1 px-3">
-      <h1>Task Management Site</h1>
+      <h1><b>Task Management Site</b></h1>
     </div>
     <div class="row py-1 px-3">
-      <div class="alert alert-info shadow-sm rounded" role="alert">
+      <div class="alert alert-secondary shadow-sm rounded" role="alert">
         <form class="mb-n1" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
           <div class="row">
             <div class="form-group col-sm-2">
@@ -105,7 +107,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
               <input type="date" class="form-control form-control-sm" name="deadline" value="<?php echo $deadline; ?>">
             </div>
             <div class="form-group col-sm-1 pt-4">
-              <input type="submit" class="btn btn-info btn-sm" value="Add">
+              <input type="submit" class="btn btn-dark btn-sm" value="Add">
             </div>
             <input type="hidden" name="action" value="insert">
           </div>
@@ -123,7 +125,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
       $sql = "SELECT * FROM TMSITE.TASK";
       $result = $conn->query($sql);
       if ($result->num_rows > 0) {
-        echo "<table class='table table-hover table'>
+        echo "<div class='table-responsive'>
+        <table class='table table-hover table'>
           <thead class='thead-dark'>
           <tr>
           <th>Task</th>
@@ -142,16 +145,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
             "</td><td>" . $row["priority"] .
             "</td><td>" . substr($row["deadline"], 0, -9) .
             "</td><td><form method='get' action='modify.php'>
-                    <input type='submit' class='btn btn-light btn-sm' value='Modify'>
+                    <button type='submit' class='btn btn-primary btn-sm' name='Modify'><i class='material-icons' style='font-size: 20px'>edit</i></button>
                     <input type='hidden' name='action' value='modify'> 
                     <input type='hidden' name='id' value='" . $row["id"] . "'> </form>" .
             "</td><td><form method='post' action='" . htmlspecialchars($_SERVER["PHP_SELF"]) . "'>
-                    <input type='submit' class='btn btn-light btn-sm' value='Delete'>
+                    <button type='submit' class='btn btn-danger btn-sm' name='Delete'><i class='material-icons' style='font-size: 20px'>delete</i></button>
                     <input type='hidden' name='action' value='delete'> 
                     <input type='hidden' name='id' value='" . $row["id"] . "'> </form>" .
             "</td></tr>";
         }
-        echo "</table>";
+        echo "</table></div>";
       } else {
         echo "No tasks at the moment.";
       }
