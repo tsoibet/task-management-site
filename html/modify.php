@@ -80,11 +80,11 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && !empty($_GET["action"])) {
 
 <body>
   <div class="container-fluid">
-    <div class="row pt-3 pb-1 px-3">
+    <div class="pt-2">
       <h1><b>Task Management Site</b></h1>
     </div>
     <div class="row py-1 px-3">
-      <div class="alert alert-secondary shadow-sm rounded" role="alert">
+      <div class="col alert alert-secondary shadow-sm rounded">
         <form class="mb-n1" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
           <div class="row">
             <div class="form-group col-sm-2">
@@ -129,22 +129,21 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && !empty($_GET["action"])) {
       </div>
     </div>
 
-    <div class="row py-1 px-3">
-      <?php
-      $conn = new mysqli($mysql_host, $mysql_user, $mysql_pass, $mysql_db);
-      if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-      }
-      $stmt = $conn->prepare("SELECT * FROM TMSITE.TASK WHERE id != ?");
-      $stmt->bind_param("i", $id);
-      if (!$stmt->execute()) {
-        echo "Error: " . $stmt->error;
-      }
-      $stmt->bind_result($id, $task, $description, $status, $priority, $deadlineness, $deadline, $createdat);
-      $stmt->store_result();
-      if ($stmt->num_rows > 0) {
-        echo "<div class='table-responsive'>
-        <table class='table table-hover table'>
+    <?php
+    $conn = new mysqli($mysql_host, $mysql_user, $mysql_pass, $mysql_db);
+    if ($conn->connect_error) {
+      die("Connection failed: " . $conn->connect_error);
+    }
+    $stmt = $conn->prepare("SELECT * FROM TMSITE.TASK WHERE id != ? ORDER BY `status`, priority, deadline");
+    $stmt->bind_param("i", $id);
+    if (!$stmt->execute()) {
+      echo "Error: " . $stmt->error;
+    }
+    $stmt->bind_result($id, $task, $description, $status, $priority, $deadlineness, $deadline, $createdat);
+    $stmt->store_result();
+    if ($stmt->num_rows > 0) {
+      echo "<div class='table-responsive'>
+        <table class='table table-hover table-sm'>
         <thead class='thead-dark'>
         <tr>
         <th>Task</th>
@@ -155,27 +154,42 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && !empty($_GET["action"])) {
         <th> </th>
         <th> </th>
         </tr>";
-        while ($stmt->fetch()) {
-          echo "<tr><td>" . $task .
-            "</td><td>" . $description .
-            "</td><td>" . $status .
-            "</td><td>" . $priority .
-            "</td><td>" . substr($deadline, 0, -9) .
-            "</td><td><form method='get' action='" . htmlspecialchars($_SERVER["PHP_SELF"]) . "'>
+      while ($stmt->fetch()) {
+        echo "<tr";
+        if ($status == "Done") {
+          echo " class='table-secondary'";
+        } else if (substr($deadline, 0, -9) < date("Y-m-d")) {
+          echo " class='table-danger'";
+        }
+        echo "><td>";
+        if ($status == 'Done') {
+          echo "<s>";
+        }
+        echo $task;
+        if ($status == 'Done') {
+          echo "</s>";
+        }
+        if ($status != 'Done' && substr($deadline, 0, -9) < date("Y-m-d")) {
+          echo "<span class='badge badge-danger ml-2'>due</span>";
+        }
+        echo "</td><td>" . $description .
+          "</td><td>" . $status .
+          "</td><td>" . $priority .
+          "</td><td>" . substr($deadline, 0, -9) .
+          "</td><td><form method='get' action='" . htmlspecialchars($_SERVER["PHP_SELF"]) . "'>
                 <button type='submit' class='btn btn-primary btn-sm' name='Modify'><i class='material-icons' style='font-size: 20px'>edit</i></button>
                 <input type='hidden' name='action' value='modify'> 
                 <input type='hidden' name='id' value='" . $id . "'> </form>" .
-            "</td><td><form method='post' action='index.php'>
+          "</td><td><form method='post' action='index.php'>
                 <button type='submit' class='btn btn-danger btn-sm' name='Delete'><i class='material-icons' style='font-size: 20px'>delete</i></button>
                 <input type='hidden' name='action' value='delete'> 
                 <input type='hidden' name='id' value='" . $id . "'> </form>" .
-            "</td></tr>";
-        }
-        echo "</table></div>";
+          "</td></tr>";
       }
-      $conn->close();
-      ?>
-    </div>
+      echo "</table></div>";
+    }
+    $conn->close();
+    ?>
   </div>
   <!-- Optional JavaScript -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
