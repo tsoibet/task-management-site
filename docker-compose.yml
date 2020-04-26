@@ -1,0 +1,38 @@
+version: '3'
+services:
+ nginx:
+     image: nginx:latest
+     ports:
+         - "8080:80"
+     depends_on:
+         - "php"
+     volumes:
+         - "$PWD/conf.d:/etc/nginx/conf.d"
+         - "$PWD/html:/usr/share/nginx/html"
+         - "$PWD/html:/var/www/html"
+ php:
+     build: ./php-mysqli
+     image: php:7.2-fpm-mysqli
+     environment:
+         - MYSQL_HOST=mysql
+         - MYSQL_USER=root
+         - MYSQL_PASS=secret
+         - MYSQL_DB=mysql
+         - MYSQL_PORT=3306
+     ports:
+         - "9000:9000"
+     volumes:
+         - "$PWD/html:/var/www/html"
+ mysql:
+     image: mysql:5.7
+     ports:
+         - "3306:3306"
+     environment:
+         - MYSQL_ROOT_PASSWORD=secret
+     volumes:
+         - $PWD/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+ adminer:
+     image: adminer
+     restart: always
+     ports:
+          - "8088:8080"
