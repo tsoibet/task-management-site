@@ -84,52 +84,52 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && !empty($_GET["action"])) {
       <h1><b>Task Management Site</b></h1>
     </div>
     <div class="row py-1 px-3">
-      <div class="col alert alert-secondary shadow-sm rounded">
+      <div class="col alert alert-primary shadow-sm rounded" style="max-width:720px">
         <form class="mb-n1" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-          <div class="row">
-            <div class="form-group col-sm-2">
-              <label class="col-form-label pl-1">Task<span class="error badge badge-danger ml-1"><?php echo $Err_msg_task; ?></span></label>
-              <input type="text" class="form-control form-control-sm" name="task" value="<?php echo $task; ?>"></td>
-            </div>
-            <div class="form-group col-sm-3">
-              <label class="col-form-label pl-1">Description</label>
-              <input type="text" class="form-control form-control-sm" name="description" value="<?php echo $description; ?>"></td>
-            </div>
-            <div class="form-group col-sm-2">
-              <label class="col-form-label pl-1">Status<span class="error badge badge-danger ml-1"><?php echo $Err_msg_status; ?></span></label>
-              <select class="form-control form-control-sm" name="status">
-                <option value="To do" <?php if ($status == "To do") echo "selected"; ?>>To do</option>
-                <option value="In progress" <?php if ($status == "In progress") echo "selected"; ?>>In progress</option>
-                <option value="Done" <?php if ($status == "Done") echo "selected"; ?>>Done</option>
-              </select></div>
-            <div class="form-group col-sm-2">
-              <div><label class="col-form-label pl-1">Priority<span class="error badge badge-danger ml-1"><?php echo $Err_msg_priority; ?></span></label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input position-static" name="priority" value="1" <?php if ($priority == "1") echo "checked"; ?>>1
-              </div>
-              <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input position-static" name="priority" value="2" <?php if ($priority == "2") echo "checked"; ?>>2
-              </div>
-              <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input position-static" name="priority" value="3" <?php if ($priority == "3") echo "checked"; ?>>3
-              </div>
-            </div>
-            <div class="form-group col-sm-2">
-              <label class="col-form-label pl-1">Deadline<span class="error badge badge-danger ml-1"><?php echo $Err_msg_deadline; ?></span></label>
-              <input type="date" class="form-control form-control-sm" name="deadline" value="<?php echo $deadline ?>">
-            </div>
-            <div class="form-group col-sm-1 pt-4">
-              <input type="submit" class="btn btn-dark btn-sm" value="Send">
-            </div>
-            <input type="hidden" name="action" value="update">
+
+          <div class="form-group">
+            <label class="col-form-label pl-1">Task<span class="error badge badge-danger ml-1"><?php echo $Err_msg_task; ?></span></label>
+            <input type="text" class="form-control form-control-sm" name="task" value="<?php echo $task; ?>"></td>
           </div>
+          <div class="form-group">
+            <label class="col-form-label pl-1">Description</label>
+            <input type="text" class="form-control form-control-sm" name="description" value="<?php echo $description; ?>"></td>
+          </div>
+          <div class="form-group">
+            <label class="col-form-label pl-1">Status<span class="error badge badge-danger ml-1"><?php echo $Err_msg_status; ?></span></label>
+            <select class="form-control form-control-sm" name="status">
+              <option value="To do" <?php if ($status == "To do") echo "selected"; ?>>To do</option>
+              <option value="In progress" <?php if ($status == "In progress") echo "selected"; ?>>In progress</option>
+              <option value="Done" <?php if ($status == "Done") echo "selected"; ?>>Done</option>
+            </select></div>
+          <div class="form-group">
+            <div><label class="col-form-label pl-1">Priority<span class="error badge badge-danger ml-1"><?php echo $Err_msg_priority; ?></span></label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input type="radio" class="form-check-input position-static" name="priority" value="1" <?php if ($priority == "1") echo "checked"; ?>>1
+            </div>
+            <div class="form-check form-check-inline">
+              <input type="radio" class="form-check-input position-static" name="priority" value="2" <?php if ($priority == "2") echo "checked"; ?>>2
+            </div>
+            <div class="form-check form-check-inline">
+              <input type="radio" class="form-check-input position-static" name="priority" value="3" <?php if ($priority == "3") echo "checked"; ?>>3
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-form-label pl-1">Deadline<span class="error badge badge-danger ml-1"><?php echo $Err_msg_deadline; ?></span></label>
+            <input type="date" class="form-control form-control-sm" name="deadline" value="<?php echo $deadline ?>">
+          </div>
+          <div class="form-group pt-2">
+            <input type="submit" class="btn btn-primary btn-sm" value="Send">
+          </div>
+          <input type="hidden" name="action" value="update">
+
           <input type="hidden" name="id" value="<?php echo $id; ?>">
         </form>
       </div>
     </div>
 
-    <?php
+    <?php /*
     $conn = new mysqli($mysql_host, $mysql_user, $mysql_pass, $mysql_db);
     if ($conn->connect_error) {
       die("Connection failed: " . $conn->connect_error);
@@ -189,7 +189,8 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && !empty($_GET["action"])) {
       echo "</table></div>";
     }
     $conn->close();
-    ?>
+  */  ?>
+
   </div>
   <!-- Optional JavaScript -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->

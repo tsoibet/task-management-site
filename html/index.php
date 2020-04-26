@@ -70,63 +70,94 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
       <h1><b>Task Management Site</b></h1>
     </div>
     <div class="row py-1 px-3">
-      <div class="col alert alert-secondary shadow-sm rounded">
-        <form class="mb-n1" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-          <div class="row">
-            <div class="form-group col-sm-2">
-              <label class="col-form-label pl-1">Task<span class="error badge badge-danger ml-1"><?php echo $Err_msg_task; ?></span></label>
-              <input type="text" class="form-control form-control-sm" name="task" value="<?php echo $task; ?>">
-            </div>
-            <div class="form-group col-sm-3">
-              <label class="col-form-label pl-1">Description</label>
-              <input type="text" class="form-control form-control-sm" name="description" value="<?php echo $description; ?>">
-            </div>
-            <div class="form-group col-sm-2">
-              <label class="col-form-label pl-1">Status<span class="error badge badge-danger ml-1"><?php echo $Err_msg_status; ?></span></label>
-              <select name="status" class="form-control form-control-sm">
-                <option value="To do" <?php if ($status == "To do") echo "selected"; ?>>To do</option>
-                <option value="In progress" <?php if ($status == "In progress") echo "selected"; ?>>In progress</option>
-                <option value="Done" <?php if ($status == "Done") echo "selected"; ?>>Done</option>
-              </select>
-            </div>
-            <div class="form-group col-sm-2">
-              <div><label class="col-form-label pl-1">Priority<span class="error badge badge-danger ml-1"><?php echo $Err_msg_priority; ?></span></label>
+      <div class="col">
+        <p><a class="btn btn-dark" data-toggle="collapse" href="#addtaskform" role="button" onclick="myFunction(this)">Hide form</a></p>
+        <!--Javascript button-->
+        <script>
+          function myFunction(x) {
+            var y = document.getElementById("addtaskform");
+            if (x.innerHTML === "Hide form" && y.classList.contains("show")) {
+              x.innerHTML = "Show form";
+            }
+            if (x.innerHTML === "Show form" && y.classList.value == "collapse") {
+              x.innerHTML = "Hide form";
+            }
+          }
+        </script>
+        <div class="collapse show" id="addtaskform">
+          <form class="alert alert-secondary shadow-sm rounded" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+            <div class="row">
+              <div class="form-group col-sm-2">
+                <label class="col-form-label pl-1">Task<span class="error badge badge-danger ml-1"><?php echo $Err_msg_task; ?></span></label>
+                <input type="text" class="form-control form-control-sm" name="task" value="<?php echo $task; ?>">
               </div>
-              <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input position-static" name="priority" value="1" <?php if ($priority == "1") echo "checked"; ?>>1
+              <div class="form-group col-sm-3">
+                <label class="col-form-label pl-1">Description</label>
+                <input type="text" class="form-control form-control-sm" name="description" value="<?php echo $description; ?>">
               </div>
-              <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input position-static" name="priority" value="2" <?php if ($priority == "2") echo "checked"; ?>>2
+              <div class="form-group col-sm-2">
+                <label class="col-form-label pl-1">Status<span class="error badge badge-danger ml-1"><?php echo $Err_msg_status; ?></span></label>
+                <select name="status" class="form-control form-control-sm">
+                  <option value="To do" <?php if ($status == "To do") echo "selected"; ?>>To do</option>
+                  <option value="In progress" <?php if ($status == "In progress") echo "selected"; ?>>In progress</option>
+                  <option value="Done" <?php if ($status == "Done") echo "selected"; ?>>Done</option>
+                </select>
               </div>
-              <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input position-static" name="priority" value="3" <?php if ($priority == "3") echo "checked"; ?>>3
+              <div class="form-group col-sm-2">
+                <div><label class="col-form-label pl-1">Priority<span class="error badge badge-danger ml-1"><?php echo $Err_msg_priority; ?></span></label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input type="radio" class="form-check-input position-static" name="priority" value="1" <?php if ($priority == "1") echo "checked"; ?>>1
+                </div>
+                <div class="form-check form-check-inline">
+                  <input type="radio" class="form-check-input position-static" name="priority" value="2" <?php if ($priority == "2") echo "checked"; ?>>2
+                </div>
+                <div class="form-check form-check-inline">
+                  <input type="radio" class="form-check-input position-static" name="priority" value="3" <?php if ($priority == "3") echo "checked"; ?>>3
+                </div>
               </div>
+              <div class="form-group col-sm-2">
+                <label class="col-form-label pl-1">Deadline<span class="error badge badge-danger ml-1"><?php echo $Err_msg_deadline; ?></span></label>
+                <input type="date" class="form-control form-control-sm" name="deadline" value="<?php echo $deadline; ?>">
+              </div>
+              <div class="form-group col-sm-1 pt-4">
+                <input type="submit" class="btn btn-dark btn-sm" value="Add">
+              </div>
+              <input type="hidden" name="action" value="insert">
             </div>
-            <div class="form-group col-sm-2">
-              <label class="col-form-label pl-1">Deadline<span class="error badge badge-danger ml-1"><?php echo $Err_msg_deadline; ?></span></label>
-              <input type="date" class="form-control form-control-sm" name="deadline" value="<?php echo $deadline; ?>">
-            </div>
-            <div class="form-group col-sm-1 pt-4">
-              <input type="submit" class="btn btn-dark btn-sm" value="Add">
-            </div>
-            <input type="hidden" name="action" value="insert">
-          </div>
-        </form>
-
+          </form>
+        </div>
       </div>
     </div>
 
 
     <?php
+
+    //Pagination
+    if (isset($_GET['page'])) {
+      $page = $_GET['page'];
+    } else {
+      $page = 1;
+    }
+    $records_per_page = 8;
+    $offset = ($page - 1) * $records_per_page;
+
     $conn = new mysqli($mysql_host, $mysql_user, $mysql_pass, $mysql_db);
     if ($conn->connect_error) {
       die("Connection failed: " . $conn->connect_error);
     }
-    $sql = "SELECT * FROM TMSITE.TASK ORDER BY `status`, priority, deadline";
+
+    //Pagination
+    $total_results_sql = "SELECT COUNT(*) FROM  TMSITE.TASK";
+    $res = $conn->query($total_results_sql);
+    $total_results = $res->fetch_array()[0];
+    $total_pages = ceil($total_results / $records_per_page);
+
+    $sql = "SELECT * FROM TMSITE.TASK ORDER BY `status`, priority, deadline LIMIT $offset, $records_per_page";
     $result = $conn->query($sql);
     if ($result->num_rows > 0) {
       echo "<div class='table-responsive'>
-        <table class='table table-hover table-sm'>
+          <table class='table table-hover table-sm'>
           <thead class='thead-dark'>
           <tr>
           <th>Task</th>
@@ -171,6 +202,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
           "</td></tr>";
       }
       echo "</table></div>";
+      echo "<nav aria-label='Task result pages'>
+        <ul class='pagination justify-content-center'>
+        <li class='page-item'><a class='page-link' href='?page=1'>First</a></li>
+        <li class='page-item";
+      if ($page <= 1) {
+        echo " disabled";
+      }
+      echo "'><a class='page-link' href='";
+      if ($page <= 1) {
+        echo "#' tableindex='-1";
+      } else {
+        echo "?page=" . ($page - 1);
+      }
+      echo "'>Previous</a></li>
+        <li class='page-item";
+      if ($page >= $total_pages) {
+        echo " disabled";
+      }
+      echo "'><a class='page-link' href='";
+      if ($page >= $total_pages) {
+        echo "#' tableindex='-1";
+      } else {
+        echo "?page=" . ($page + 1);
+      }
+      echo "'>Next</a></li>
+        <li class='page-item'><a class='page-link' href='?page=" . $total_pages . "'>Last</a></li>
+        </ul></nav>";
     } else {
       echo "No tasks at the moment.";
     }
