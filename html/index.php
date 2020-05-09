@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
       $task = $description = $status = $priority = $deadline = "";
     }
   } else if ($_POST["action"] == "delete") {
-    $stmt = $conn->prepare("DELETE FROM TMSITE.TASK WHERE id=?");
+    $stmt = $conn->prepare("DELETE FROM TMSITE.TASK WHERE id = ?");
     $stmt->bind_param("i", $id);
     $id = input_safe($_POST["id"]);
     if (!$stmt->execute()) {
@@ -107,7 +107,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
                 <div><label class="col-form-label pl-1">Priority<span class="error badge badge-danger ml-1"><?php echo $Err_msg_priority; ?></span></label>
                 </div>
                 <div class="form-check form-check-inline">
-                  <input type="radio" class="form-check-input position-static" name="priority" value="1" <?php if ($priority == "1") echo "checked"; ?>>1
+                  <input type="radio" class="form-check-input position-static" name="priority" value="1" checked>1
                 </div>
                 <div class="form-check form-check-inline">
                   <input type="radio" class="form-check-input position-static" name="priority" value="2" <?php if ($priority == "2") echo "checked"; ?>>2
@@ -118,7 +118,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
               </div>
               <div class="form-group col-sm-2">
                 <label class="col-form-label pl-1">Deadline<span class="error badge badge-danger ml-1"><?php echo $Err_msg_deadline; ?></span></label>
-                <input type="date" class="form-control form-control-sm" name="deadline" value="<?php echo $deadline; ?>">
+                <input type="date" class="form-control form-control-sm" name="deadline" value="<?php if (isset($deadline)) {
+                                                                                                  echo $deadline;
+                                                                                                } else {
+                                                                                                  echo date("Y-m-d");
+                                                                                                } ?>">
               </div>
               <div class="form-group col-sm-1 pt-4">
                 <input type="submit" class="btn btn-dark btn-sm" value="Add">
@@ -132,14 +136,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
 
 
     <?php
+    //sortby
+    $sort_by_status_mark = $sort_by_priority_mark = $sort_by_deadline_mark = "";
+    if (isset($_GET['sortby'])) {
+      $sortby = $_GET['sortby'];
+      if ($sortby == "Priority") {
+        $subsort1 = "Status";
+        $subsort2 = "Deadline";
+        $sort_by_priority_mark = "<span class='material-icons'>arrow_drop_down</span>";
+      }
+      if ($sortby == "Deadline") {
+        $subsort1 = "Status";
+        $subsort2 = "Priority";
+        $sort_by_deadline_mark = "<span class='material-icons'>arrow_drop_down</span>";
+      }
+      if ($sortby == "Status") {
+        $subsort1 = "Priority";
+        $subsort2 = "Deadline";
+        $sort_by_status_mark = "<span class='material-icons'>arrow_drop_down</span>";
+      }
+    } else {
+      $sortby = "Status";
+      $subsort1 = "Priority";
+      $subsort2 = "Deadline";
+      $sort_by_status_mark = "<span class='material-icons'>arrow_drop_down</span>";
+    }
 
-    //Pagination
+    //pagination
     if (isset($_GET['page'])) {
       $page = $_GET['page'];
     } else {
       $page = 1;
     }
-    $records_per_page = 8;
+    $records_per_page = 6;
     $offset = ($page - 1) * $records_per_page;
 
     $conn = new mysqli($mysql_host, $mysql_user, $mysql_pass, $mysql_db);
@@ -147,24 +176,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
       die("Connection failed: " . $conn->connect_error);
     }
 
-    //Pagination
+    //sortby & pagination
     $total_results_sql = "SELECT COUNT(*) FROM  TMSITE.TASK";
     $res = $conn->query($total_results_sql);
     $total_results = $res->fetch_array()[0];
     $total_pages = ceil($total_results / $records_per_page);
 
-    $sql = "SELECT * FROM TMSITE.TASK ORDER BY `status`, priority, deadline LIMIT $offset, $records_per_page";
+    $sql = "SELECT * FROM TMSITE.TASK ORDER BY $sortby, $subsort1, $subsort2 LIMIT $offset, $records_per_page";
     $result = $conn->query($sql);
     if ($result->num_rows > 0) {
-      echo "<div class='table-responsive'>
+      //sortby
+      echo "<div class='dropdown' align='right'>Sort by 
+         <a class='btn btn-light dropdown-toggle mb-2 mx-1' href='#' role='button' id='dropdownMenuLink' data-toggle='dropdown'>
+         Select
+         </a>
+          <div class='dropdown-menu'>
+          <a class='dropdown-item";
+      if ($sortby == 'Status') {
+        echo " active";
+      }
+      echo "' href='?sortby=Status'>Status</a>
+          <a class='dropdown-item";
+      if ($sortby == 'Priority') {
+        echo " active";
+      }
+      echo "' href='?sortby=Priority'>Priority</a>
+          <a class='dropdown-item";
+      if ($sortby == 'Deadline') {
+        echo " active";
+      }
+      echo "' href='?sortby=Deadline'>Deadline</a>
+          </div>
+        </div>
+
+          <div class='table-responsive'>
           <table class='table table-hover table-sm'>
           <thead class='thead-dark'>
           <tr>
           <th>Task</th>
           <th>Description</th>
-          <th>Status</th>
-          <th>Priority</th>
-          <th>Deadline</th>
+          <th>Status" . $sort_by_status_mark . "</th>
+          <th>Priority" . $sort_by_priority_mark . "</th>
+          <th>Deadline" . $sort_by_deadline_mark . "</th>
           <th> </th>
           <th> </th>
           </tr>
@@ -192,11 +245,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
           "</td><td>" . $row["priority"] .
           "</td><td>" . substr($row["deadline"], 0, -9) .
           "</td><td><form method='get' action='modify.php'>
-                    <button type='submit' class='btn btn-primary btn-sm' name='Modify'><i class='material-icons' style='font-size: 20px'>edit</i></button>
+                    <button type='submit' class='btn btn-primary btn-sm'><i class='material-icons' style='font-size: 20px'>edit</i></button>
                     <input type='hidden' name='action' value='modify'> 
                     <input type='hidden' name='id' value='" . $row["id"] . "'> </form>" .
           "</td><td><form method='post' action='" . htmlspecialchars($_SERVER["PHP_SELF"]) . "'>
-                    <button type='submit' class='btn btn-danger btn-sm' name='Delete'><i class='material-icons' style='font-size: 20px'>delete</i></button>
+                    <button type='submit' class='btn btn-danger btn-sm'><i class='material-icons' style='font-size: 20px'>delete</i></button>
                     <input type='hidden' name='action' value='delete'> 
                     <input type='hidden' name='id' value='" . $row["id"] . "'> </form>" .
           "</td></tr>";
@@ -204,7 +257,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
       echo "</table></div>";
       echo "<nav aria-label='Task result pages'>
         <ul class='pagination justify-content-center'>
-        <li class='page-item'><a class='page-link' href='?page=1'>First</a></li>
+        <li class='page-item'><a class='page-link' href='?sortby=" . $sortby . "&page=1'>First</a></li>
         <li class='page-item";
       if ($page <= 1) {
         echo " disabled";
@@ -213,7 +266,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
       if ($page <= 1) {
         echo "#' tableindex='-1";
       } else {
-        echo "?page=" . ($page - 1);
+        echo "?sortby=" . $sortby . "&page=" . ($page - 1);
       }
       echo "'>Previous</a></li>
         <li class='page-item";
@@ -224,10 +277,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["action"])) {
       if ($page >= $total_pages) {
         echo "#' tableindex='-1";
       } else {
-        echo "?page=" . ($page + 1);
+        echo "?sortby=" . $sortby . "&page=" . ($page + 1);
       }
       echo "'>Next</a></li>
-        <li class='page-item'><a class='page-link' href='?page=" . $total_pages . "'>Last</a></li>
+        <li class='page-item'><a class='page-link' href='?sortby=" . $sortby . "&page=" . $total_pages . "'>Last</a></li>
         </ul></nav>";
     } else {
       echo "No tasks at the moment.";

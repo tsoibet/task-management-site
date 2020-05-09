@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && !empty($_GET["action"])) {
     die("Connection failed: " . $conn->connect_error);
   }
   if ($_GET["action"] == "modify") {
-    $stmt = $conn->prepare("SELECT * FROM TMSITE.TASK WHERE id=?");
+    $stmt = $conn->prepare("SELECT * FROM TMSITE.TASK WHERE id = ?");
     $stmt->bind_param("i", $id);
     $id = input_safe($_GET["id"]);
     if (!$stmt->execute()) {
